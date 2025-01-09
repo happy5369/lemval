@@ -1,4 +1,4 @@
-ADDRESS=
+ADDRESS=0x
 VALIDATOR_ID=
 
 while [[ 1 ]]; do
