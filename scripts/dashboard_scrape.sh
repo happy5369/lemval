@@ -1,5 +1,7 @@
 #!/bin/bash
 
+source ./common.lib
+
 # https://www.theunixschool.com/2012/05/different-ways-to-print-next-few-lines.html
 # https://stackoverflow.com/questions/2702564/how-can-i-quickly-sum-all-numbers-in-a-file
 
@@ -10,22 +12,22 @@ function f_print {
 	printf "%-9s: %s\n" "$text" "$value"
 }
 
-function f_compute {
-	value=$1
-	
-	echo `echo "$value" | bc -l`
-}
-
-function f_round {
-	value=$1
-	
-	printf %.2f $value
-}
-
 function f_sumLineCount {
 	lines=$1
 	
 	echo `echo "$lines" | sed "s#,##" | paste -sd+ | bc` # bc doesn't like having commas
+}
+
+function f_printTen {
+	ten=$1
+	direction=$2
+	totalLemx=$3
+	
+	tenCount=$(f_sumLineCount "$ten")
+	tenPercentRound=$(f_round $(f_compute "$tenCount / $totalLemx * 100"))
+	echo
+	echo "$direction Ten (${tenCount}lemx | ${tenPercentRound}%)"
+	echo "$ten"
 }
 
 vals=`grep -A1 Delegation dashboard-validator-info.txt | grep LEMX | sed s#LEMX##`
@@ -63,15 +65,7 @@ f_print "ROI" "${roiMultipleRound}x (${roiPercentRound}%)"
 f_print "# of vals < 50 lemx" "`echo "$vals" | grep -E ^10 | grep -v 100 | wc -l`"
 
 topTen=`echo "$vals" | sort -rn | head -n 10`
-topTenCount=$(f_sumLineCount "$topTen")
-topTenPercentRound=$(f_round $(f_compute "$topTenCount / $totalLemx * 100"))
-echo
-echo "Top Ten (${topTenCount}lemx | ${topTenPercentRound}%)"
-echo "$topTen"
+f_printTen "$topTen" "Top" "$totalLemx"
 
 bottomTen=`echo "$vals" | sort -n | head -n 10`
-bottomTenCount=$(f_sumLineCount "$bottomTen")
-bottomTenPercentRound=$(f_round $(f_compute "$bottomTenCount / $totalLemx * 100"))
-echo
-echo "Bottom Ten (${bottomTenCount}lemx | ${bottomTenPercentRound}%)"
-echo "$bottomTen"
+f_printTen "$bottomTen" "Bottom" "$totalLemx"

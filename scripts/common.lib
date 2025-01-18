@@ -1,0 +1,19 @@
+
+
+function f_compute {
+	value=$1
+	
+	echo `echo "$value" | bc -l`
+}
+
+function f_round {
+	value=$1
+	decimalPlaces=$2
+	
+	# set default 2
+	if [[ -z $decimalPlaces ]]; then
+		decimalPlaces=2
+	fi
+	
+	printf %.${decimalPlaces}f $value
+}
