@@ -1,21 +1,16 @@
 #!/bin/bash
 
-source ./common.lib
+source lib/common.lib
 
 ADDRESS=0x
 VALIDATOR_ID=
 
 decimalPlaces=4
+previousRewards=0	# need to set this to something can't leave blank, b/c it messes with param list below if empty (one less param into f_printRewards, even if you quote it -- "$var"), altho it's just the first go round so doesn't really matter honestly, since on 2nd round it catches up...
 
 while [[ 1 ]]; do
-	echo -n "[`date "+%m/%d %T"`] "
-	PENDING_REWARDS=$(~/go-opera/build/opera attach --preload /extra/preload.js --datadir=/extra/lemon/data --exec "sfcc.pendingRewards('$ADDRESS', $VALIDATOR_ID);")
-	
-	diff=$((PENDING_REWARDS-previousRewards))
-	computed=$(f_compute "$PENDING_REWARDS / 10^18")
-	rounded=$(f_round $computed $decimalPlaces)
-	echo "$rounded $PENDING_REWARDS (+$diff)"
-	
-	previousRewards=$PENDING_REWARDS
+	pendingRewards=$(f_getRewards $ADDRESS $VALIDATOR_ID)
+	f_printRewards $pendingRewards $previousRewards $decimalPlaces ""
+	previousRewards=$pendingRewards
 	sleep 1h;
 done

@@ -1,5 +1,7 @@
 #!/bin/bash
 
+source lib/common.lib
+
 function f_printUp {
 	text=$1
 	
@@ -37,7 +39,7 @@ num_processes=`ps auxww | grep opera | grep validator | wc -l`
 
 while [[ 1 ]]; do
 	#echo -n "`date +"%D %r"` - "
-	echo -n "[`date "+%m/%d %T"`] "
+	f_printDate
 
 	if [[ $num_processes -eq 1 ]]; then
 		f_printUp "P"

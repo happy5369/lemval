@@ -1,8 +1,16 @@
 #!/bin/bash
 
+source lib/common.lib
+
+diffsOnly=true
+
 while [[ 1 ]]; do
-	echo -n "[`date "+%m/%d %T"`] "
-	df -H | grep sda2
+	current=`df -H | grep sda2`
+	if [[ $diffsOnly == false || ($diffsOnly == true && "$current" != "$previous") ]]; then		
+		f_printDate
+		echo $current
+	fi
 	
-	sleep 1h;
+	previous=$current
+	sleep 1m;
 done

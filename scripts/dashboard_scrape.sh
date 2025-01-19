@@ -1,6 +1,6 @@
 #!/bin/bash
 
-source ./common.lib
+source lib/common.lib
 
 # https://www.theunixschool.com/2012/05/different-ways-to-print-next-few-lines.html
 # https://stackoverflow.com/questions/2702564/how-can-i-quickly-sum-all-numbers-in-a-file

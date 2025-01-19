@@ -1,0 +1,47 @@
+
+function f_printDate {
+	echo -n "[`date "+%m/%d %T"`] "
+}
+
+function f_compute {
+	value=$1
+	
+	echo `echo "$value" | bc -l`
+}
+
+function f_round {
+	value=$1
+	decimalPlaces=$2
+	
+	# set default 2
+	if [[ -z $decimalPlaces ]]; then
+		decimalPlaces=2
+	fi
+	
+	printf %.${decimalPlaces}f $value
+}
+
+function f_getRewards {
+	address=$1
+	validatorId=$2
+
+	~/go-opera/build/opera attach --preload /extra/preload.js --datadir=/extra/lemon/data --exec "sfcc.pendingRewards('$address', $validatorId);"
+}
+
+function f_printRewards {
+	pendingRewards=$1
+	previousRewards=$2
+	decimalPlaces=$3
+	diffsOnly=$4
+	
+	rewardsComputed=$(f_compute "$pendingRewards / 10^18")
+	rewardsRounded=$(f_round $rewardsComputed $decimalPlaces)
+	diff=$((pendingRewards-previousRewards))
+	diffComputed=$(f_compute "$diff / 10^18")
+	diffRounded=$(f_round $diffComputed $decimalPlaces)
+	
+	if [[ $diffsOnly == false || ($diffsOnly == true && $diff -ne 0) ]]; then
+		f_printDate
+		echo "$rewardsRounded $pendingRewards (+$diff $diffRounded)"
+	fi
+}
