@@ -30,42 +30,47 @@ function f_printTen {
 	echo "$ten"
 }
 
-vals=`grep -A1 Delegation dashboard-validator-info.txt | grep LEMX | sed s#LEMX##`
-numvals=`echo "$vals" | wc -l`
-myStake=`echo "$vals" | tail -n 1`
-#myStake=21
-totalLemxWithMineTwice=$(f_sumLineCount "$vals")
-totalLemx=$((totalLemxWithMineTwice-myStake))
-myPercent=$(f_compute "$myStake / $totalLemx")
+f_checkAndSetBuildTimestamp "$1"
 
-f_print "# of vals" $numvals
-f_print "# of lemx" $totalLemx
-f_print "# my lemx" $myStake
-f_print "my %" $myPercent
+typeset output_filename=$(f_getRunOutputFilename_Helper "dashboard")
+{
+	vals=`grep -A1 Delegation dashboard-validator-info.txt | grep LEMX | sed s#LEMX##`
+	numvals=`echo "$vals" | wc -l`
+	myStake=`echo "$vals" | tail -n 1`
+	#myStake=21
+	totalLemxWithMineTwice=$(f_sumLineCount "$vals")
+	totalLemx=$((totalLemxWithMineTwice-myStake))
+	myPercent=$(f_compute "$myStake / $totalLemx")
 
-oneBillion=1000000000
-myEarning=$(f_compute "$oneBillion *.01 * $myPercent")
-myEarningRound=$(f_round "$myEarning")
-echo
-echo "Assuming 
-- 1B USD transaction
-- 1% fees to vals"
-echo
-f_print "return" "\$${myEarningRound} (1B*1%*$myPercent)"
+	f_print "# of vals" $numvals
+	f_print "# of lemx" $totalLemx
+	f_print "# my lemx" $myStake
+	f_print "my %" $myPercent
 
-lemxValue=60
-totalInvestment=$(f_compute "$lemxValue * $myStake")
-roiMultiple=$(f_compute "$myEarning / $totalInvestment")
-roiPercent=$(f_compute "($roiMultiple - 1) * 100")
-roiMultipleRound=$(f_round "$roiMultiple")
-roiPercentRound=$(f_round "$roiPercent")
-f_print "initial" "\$${totalInvestment}"
-f_print "ROI" "${roiMultipleRound}x (${roiPercentRound}%)"
+	oneBillion=1000000000
+	myEarning=$(f_compute "$oneBillion *.01 * $myPercent")
+	myEarningRound=$(f_round "$myEarning")
+	echo
+	echo "Assuming 
+	- 1B USD transaction
+	- 1% fees to vals"
+	echo
+	f_print "return" "\$${myEarningRound} (1B*1%*$myPercent)"
 
-f_print "# of vals < 50 lemx" "`echo "$vals" | grep -E ^10 | grep -v 100 | wc -l`"
+	lemxValue=60
+	totalInvestment=$(f_compute "$lemxValue * $myStake")
+	roiMultiple=$(f_compute "$myEarning / $totalInvestment")
+	roiPercent=$(f_compute "($roiMultiple - 1) * 100")
+	roiMultipleRound=$(f_round "$roiMultiple")
+	roiPercentRound=$(f_round "$roiPercent")
+	f_print "initial" "\$${totalInvestment}"
+	f_print "ROI" "${roiMultipleRound}x (${roiPercentRound}%)"
 
-topTen=`echo "$vals" | sort -rn | head -n 10`
-f_printTen "$topTen" "Top" "$totalLemx"
+	f_print "# of vals < 50 lemx" "`echo "$vals" | grep -E ^10 | grep -v 100 | wc -l`"
 
-bottomTen=`echo "$vals" | sort -n | head -n 10`
-f_printTen "$bottomTen" "Bottom" "$totalLemx"
+	topTen=`echo "$vals" | sort -rn | head -n 10`
+	f_printTen "$topTen" "Top" "$totalLemx"
+
+	bottomTen=`echo "$vals" | sort -n | head -n 10`
+	f_printTen "$bottomTen" "Bottom" "$totalLemx"
+} 2>&1 | tee $output_filename

@@ -1,47 +1,86 @@
+source lib/common.vars
+
+function f_checkAndSetBuildTimestamp {
+	typeset extra_info=$1
+    
+	if [[ -z $BUILD_TIMESTAMP ]]; then
+		f_setBuildTimestamp $(f_getBuildTime) "$extra_info"
+	fi
+}
+
+function f_setBuildTimestamp {
+	typeset time=$1
+	typeset extra_info=$2
+    
+	typeset timestamp=$time
+	if [[ -n $extra_info ]]; then
+		timestamp="${time}${FILENAME_SEGMENT_SEPARATOR}${extra_info}"
+	fi
+   
+	export BUILD_TIMESTAMP=$timestamp
+}
+
+function f_getBuildTime {
+	typeset delim=$FILENAME_WORD_DELIMETER
+	echo `date +"%Y${delim}%m${delim}%d${delim}${delim}%H${delim}%M${delim}%S"`
+}
+
+# creates folder structure if it doesn't exist
+function f_getRunOutputFilename_Helper {
+	typeset filename=$1
+    
+	typeset sep=$FILENAME_SEGMENT_SEPARATOR
+	typeset filename="${TMP_AREA}${USER}${sep}${BUILD_TIMESTAMP}${sep}${filename}.out"
+	
+	typeset parents=`dirname $filename`
+	mkdir -p $parents
+	
+	echo "$filename"
+}
 
 function f_printDate {
 	echo -n "[`date "+%m/%d %T"`] "
 }
 
 function f_compute {
-	value=$1
+	typeset value=$1
 	
 	echo `echo "$value" | bc -l`
 }
 
 function f_round {
-	value=$1
-	decimalPlaces=$2
+	typeset value=$1
+	typeset decimal_places=$2
 	
 	# set default 2
-	if [[ -z $decimalPlaces ]]; then
-		decimalPlaces=2
+	if [[ -z $decimal_places ]]; then
+		decimal_places=2
 	fi
 	
-	printf %.${decimalPlaces}f $value
+	printf %.${decimal_places}f $value
 }
 
 function f_getRewards {
-	address=$1
-	validatorId=$2
+	typeset address=$1
+	typeset validator_id=$2
 
-	~/go-opera/build/opera attach --preload /extra/preload.js --datadir=/extra/lemon/data --exec "sfcc.pendingRewards('$address', $validatorId);"
+	~/go-opera/build/opera attach --preload /extra/preload.js --datadir=/extra/lemon/data --exec "sfcc.pendingRewards('$address', $validator_id);"
 }
 
 function f_printRewards {
-	pendingRewards=$1
-	previousRewards=$2
-	decimalPlaces=$3
-	diffsOnly=$4
+	typeset pending_rewards=$1
+	typeset previous_rewards=$2
+	typeset decimal_places=$3
+	typeset diffs_only=$4
 	
-	rewardsComputed=$(f_compute "$pendingRewards / 10^18")
-	rewardsRounded=$(f_round $rewardsComputed $decimalPlaces)
-	diff=$((pendingRewards-previousRewards))
-	diffComputed=$(f_compute "$diff / 10^18")
-	diffRounded=$(f_round $diffComputed $decimalPlaces)
+	typeset rewards_computed=$(f_compute "$pending_rewards / 10^18")
+	typeset rewards_rounded=$(f_round $rewards_computed $decimal_places)
+	typeset diff=$((pending_rewards-previous_rewards))
+	typeset diff_computed=$(f_compute "$diff / 10^18")
+	typeset diff_rounded=$(f_round $diff_computed $decimal_places)
 	
-	if [[ $diffsOnly == false || ($diffsOnly == true && $diff -ne 0) ]]; then
+	if [[ $diffs_only == false || ($diffs_only == true && $diff -ne 0) ]]; then
 		f_printDate
-		echo "$rewardsRounded $pendingRewards (+$diff $diffRounded)"
+		echo "$rewards_rounded $pending_rewards (+$diff $diff_rounded)"
 	fi
 }
