@@ -70,8 +70,9 @@ function f_getRewards {
 function f_printRewards {
 	typeset pending_rewards=$1
 	typeset previous_rewards=$2
-	typeset decimal_places=$3
-	typeset diffs_only=$4
+	typeset epoch=$3
+	typeset decimal_places=$4
+	typeset diffs_only=$5
 	
 	typeset rewards_computed=$(f_compute "$pending_rewards / 10^18")
 	typeset rewards_rounded=$(f_round $rewards_computed $decimal_places)
@@ -81,6 +82,6 @@ function f_printRewards {
 	
 	if [[ $diffs_only == false || ($diffs_only == true && $diff -ne 0) ]]; then
 		f_printDate
-		echo "$rewards_rounded $pending_rewards (+$diff $diff_rounded)"
+		echo "|$epoch| $rewards_rounded $pending_rewards (+$diff $diff_rounded)"
 	fi
 }
