@@ -14,7 +14,7 @@ typeset output_filename=$(f_getRunOutputFilename_Helper "rewards2")
 		current_epoch=$(~/go-opera/build/opera attach --preload /extra/preload.js --datadir=/extra/lemon/data --exec "sfcc.currentEpoch();")
 		
 		if [[ $previousEpoch != $current_epoch ]]; then
-			pending_rewards=$(f_getRewards $ADDRESS $VALIDATOR_ID)
+			pending_rewards=$(f_getRewards $LEM_ADDRESS $LEM_VALIDATOR_ID)
 			f_printRewards $pending_rewards $previous_rewards $previous_epoch $decimal_places "true"
 			
 			previous_rewards=$pending_rewards

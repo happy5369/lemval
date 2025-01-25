@@ -30,7 +30,7 @@ function f_getRunOutputFilename_Helper {
 	typeset filename=$1
     
 	typeset sep=$FILENAME_SEGMENT_SEPARATOR
-	typeset filename="${TMP_AREA}${USER}${sep}${BUILD_TIMESTAMP}${sep}${filename}.out"
+	typeset filename="${LEM_TMP_AREA}${USER}${sep}${BUILD_TIMESTAMP}${sep}${filename}.out"
 	
 	typeset parents=`dirname $filename`
 	mkdir -p $parents
