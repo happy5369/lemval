@@ -71,8 +71,11 @@ function f_printRewards {
 	typeset pending_rewards=$1
 	typeset previous_rewards=$2
 	typeset epoch=$3
-	typeset decimal_places=$4
-	typeset diffs_only=$5
+	typeset total_stake=$4
+	typeset unlocked_stake=$5
+	typeset locked_stake=$6
+	typeset decimal_places=$7
+	typeset diffs_only=$8
 	
 	typeset rewards_computed=$(f_compute "$pending_rewards / 10^18")
 	typeset rewards_rounded=$(f_round $rewards_computed $decimal_places)
@@ -80,8 +83,16 @@ function f_printRewards {
 	typeset diff_computed=$(f_compute "$diff / 10^18")
 	typeset diff_rounded=$(f_round $diff_computed $decimal_places)
 	
+	typeset total_per_coin=$(f_round $(f_compute "$pending_rewards / $total_stake") 6)
+	typeset total_per_unlocked=$(f_round $(f_compute "$pending_rewards / $unlocked_stake") 6)
+	typeset total_per_locked=$(f_round $(f_compute "$pending_rewards / $locked_stake") 6)
+	
+	typeset total_rounded=$(f_round $(f_compute "$total_stake / 10^18") 2)
+	typeset unlocked_rounded=$(f_round $(f_compute "$unlocked_stake / 10^18") 2)
+	typeset locked_rounded=$(f_round $(f_compute "$locked_stake / 10^18") 2)
+	
 	if [[ $diffs_only == false || ($diffs_only == true && $diff -ne 0) ]]; then
 		f_printDate
-		echo "|$epoch| $rewards_rounded $pending_rewards (+$diff $diff_rounded)"
+		echo "|$epoch| $rewards_rounded $pending_rewards (+$diff $diff_rounded) [$total_rounded=$total_per_coin, $unlocked_rounded=$total_per_unlocked, $locked_rounded=$total_per_locked]"
 	fi
 }

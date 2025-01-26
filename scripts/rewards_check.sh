@@ -11,7 +11,7 @@ typeset output_filename=$(f_getRunOutputFilename_Helper "rewards")
 
 	while [[ 1 ]]; do
 		pending_rewards=$(f_getRewards $LEM_ADDRESS $LEM_VALIDATOR_ID)
-		f_printRewards $pending_rewards $previous_rewards "." $decimal_places "false"
+		f_printRewards $pending_rewards $previous_rewards "." "" "" "" $decimal_places "false"
 		
 		previous_rewards=$pending_rewards
 		
