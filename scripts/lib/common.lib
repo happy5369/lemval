@@ -83,9 +83,9 @@ function f_printRewards {
 	typeset diff_computed=$(f_compute "$diff / 10^18")
 	typeset diff_rounded=$(f_round $diff_computed $decimal_places)
 	
-	typeset total_per_coin=$(f_round $(f_compute "$pending_rewards / $total_stake") 6)
-	typeset total_per_unlocked=$(f_round $(f_compute "$pending_rewards / $unlocked_stake") 6)
-	typeset total_per_locked=$(f_round $(f_compute "$pending_rewards / $locked_stake") 6)
+	typeset total_per_coin=$(f_round $(f_compute "$diff / $total_stake") 6)
+	typeset total_per_unlocked=$(f_round $(f_compute "$diff / $unlocked_stake") 6)
+	typeset total_per_locked=$(f_round $(f_compute "$diff / $locked_stake") 6)
 	
 	typeset total_rounded=$(f_round $(f_compute "$total_stake / 10^18") 2)
 	typeset unlocked_rounded=$(f_round $(f_compute "$unlocked_stake / 10^18") 2)
@@ -95,4 +95,33 @@ function f_printRewards {
 		f_printDate
 		echo "|$epoch| $rewards_rounded $pending_rewards (+$diff $diff_rounded) [$total_rounded=$total_per_coin, $unlocked_rounded=$total_per_unlocked, $locked_rounded=$total_per_locked]"
 	fi
+}
+
+function f_getTotalActiveVals {
+	f_getActiveValsIdList | wc -l
+}
+
+function f_getActiveValsIdList {
+	typeset last_id=$(f_runOpera "sfcc.lastValidatorID();")
+
+	for val_id in $(seq 1 $last_id); do 
+		typeset validator=$(f_runOpera "sfcc.getValidator($val_id);")
+		typeset hit=`echo $validator | grep -v -F '[1,' | grep -v -F '[8' | wc -l`
+		if [[ $hit -eq 1 ]]; then
+			echo $val_id
+		fi
+	done
+}
+
+function f_runOpera {
+	typeset command=$1
+	
+	$LEM_OPERA_CMD attach --preload $LEM_PRELOAD_DIR --datadir=$LEM_DATA_DIR --exec "$command"
+}
+
+function f_convertLemNumber {
+	typeset lem_number=$1
+	
+	typeset converted=`echo $lem_number | sed s#e+#*10^#`
+	echo "${converted}/${LEM_PARTICLE}" | bc -l
 }
