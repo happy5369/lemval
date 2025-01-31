@@ -7,7 +7,7 @@ f_checkAndSetBuildTimestamp "$1"
 typeset output_filename=$(f_getRunOutputFilename_Helper "epoch")
 {
 	while [[ 1 ]]; do
-		current_epoch=$(f_runOpera "sfcc.currentEpoch();")
+		current_epoch=$(f_opera_getEpoch)
 		current_time=`date +%s`
 		
 		if [[ $previous_epoch != $current_epoch ]]; then
@@ -31,6 +31,9 @@ typeset output_filename=$(f_getRunOutputFilename_Helper "epoch")
 			current_vals=$(f_getTotalActiveVals)
 			vals=$((current_vals-previous_vals))
 			previous_vals=$current_vals
+			if [[ $vals -eq 0 ]]; then
+				vals=""
+			fi
 		
 			f_printDate
 			printf "|%-4s| %3sm %-4s %-4s $vals\n" "$previous_epoch" "$epoch_time_length" "$blocks" "$staked"
