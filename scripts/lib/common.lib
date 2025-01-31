@@ -60,57 +60,136 @@ function f_round {
 	printf %.${decimal_places}f $value
 }
 
-function f_getRewards {
+function f_opera_getRewards {
 	typeset address=$1
 	typeset validator_id=$2
 
-	~/go-opera/build/opera attach --preload /extra/preload.js --datadir=/extra/lemon/data --exec "sfcc.pendingRewards('$address', $validator_id);"
+	f_runOpera "sfcc.pendingRewards('$address', $validator_id);"
 }
 
 function f_printRewards {
-	typeset pending_rewards=$1
-	typeset previous_rewards=$2
-	typeset epoch=$3
-	typeset total_stake=$4
-	typeset unlocked_stake=$5
-	typeset locked_stake=$6
-	typeset decimal_places=$7
-	typeset diffs_only=$8
+	typeset id=$1
+	typeset pending_rewards=$2
+	typeset previous_rewards=$3
+	typeset epoch=$4
+	typeset total_stake=$5
+	typeset unlocked_stake=$6
+	typeset locked_stake=$7
+	typeset total_delegated=$8
+	typeset decimal_places=$9
+	typeset diffs_only=${10}
 	
-	typeset rewards_computed=$(f_compute "$pending_rewards / 10^18")
-	typeset rewards_rounded=$(f_round $rewards_computed $decimal_places)
-	typeset diff=$((pending_rewards-previous_rewards))
-	typeset diff_computed=$(f_compute "$diff / 10^18")
-	typeset diff_rounded=$(f_round $diff_computed $decimal_places)
+	#typeset tmp_out="/tmp/printRewards.out"
+	#echo "|$epoch| id=$id $pending_rewards $previous_rewards $total_stake $unlocked_stake $locked_stake $total_delegated $decimal_places $diffs_only" >> $tmp_out
 	
-	typeset total_per_coin=$(f_round $(f_compute "$diff / $total_stake") 6)
-	typeset total_per_unlocked=$(f_round $(f_compute "$diff / $unlocked_stake") 6)
-	typeset total_per_locked=$(f_round $(f_compute "$diff / $locked_stake") 6)
+	typeset rewards_rounded=$(f_convertLemNumber "$pending_rewards" $decimal_places)
+	typeset diff=$(f_compute "$pending_rewards - $previous_rewards")
+	typeset diff_rounded=$(f_convertLemNumber "$diff" $decimal_places)
+	#echo "$rewards_rounded $diff $diff_rounded" >> $tmp_out
 	
-	typeset total_rounded=$(f_round $(f_compute "$total_stake / 10^18") 2)
-	typeset unlocked_rounded=$(f_round $(f_compute "$unlocked_stake / 10^18") 2)
-	typeset locked_rounded=$(f_round $(f_compute "$locked_stake / 10^18") 2)
+	typeset    total_per_staked=$(f_divideAndRound "$diff" "$total_stake" 6)
+	typeset  total_per_unlocked=$(f_divideAndRound "$diff" "$unlocked_stake" 6)
+	typeset    total_per_locked=$(f_divideAndRound "$diff" "$locked_stake" 6)
+	typeset total_per_delegated=$(f_divideAndRound "$diff" "$total_delegated" 6)
+	#echo "$total_per_staked $total_per_unlocked $total_per_locked $total_per_delegated" >> $tmp_out
+	
+	typeset     total_rounded=$(f_convertLemNumber "$total_stake" 0)
+	typeset  unlocked_rounded=$(f_convertLemNumber "$unlocked_stake" 0)
+	typeset    locked_rounded=$(f_convertLemNumber "$locked_stake" 0)
+	typeset delegated_rounded=$(f_convertLemNumber "$total_delegated" 0)
+	#echo "$total_rounded $unlocked_rounded $locked_rounded $delegated_rounded" >> $tmp_out
 	
 	if [[ $diffs_only == false || ($diffs_only == true && $diff -ne 0) ]]; then
 		f_printDate
-		echo "|$epoch| $rewards_rounded $pending_rewards (+$diff $diff_rounded) [$total_rounded=$total_per_coin, $unlocked_rounded=$total_per_unlocked, $locked_rounded=$total_per_locked]"
+		printf "%-6s id=%-4s %8s %22s (%21s %8s) [%14s, %12s, %14s, %14s]\n" "|$epoch|" "$id" "$rewards_rounded" "$pending_rewards" "+$diff" "$diff_rounded" "$total_rounded=$total_per_staked" "$unlocked_rounded=$total_per_unlocked" "$locked_rounded=$total_per_locked" "$delegated_rounded=$total_per_delegated"
+		#echo "|$epoch| id=$id $rewards_rounded $pending_rewards (+$diff $diff_rounded) [$total_rounded=$total_per_staked, $unlocked_rounded=$total_per_unlocked, $locked_rounded=$total_per_locked]"
 	fi
 }
 
-function f_getTotalActiveVals {
-	f_getActiveValsIdList | wc -l
+function f_divideAndRound {
+	typeset numerator=$1
+	typeset denominator=$2
+	typeset decimal_places=$3
+	
+	numerator=`f_convertLemNumber $numerator`
+	denominator=`f_convertLemNumber $denominator`
+	denominator_rounded=`f_round $denominator 0`
+	if [[ $denominator_rounded -eq 0 ]]; then	# have to use denominator_rounded or else you'll get 'syntax error: invalid arithmetic operator (error token is ".00000000000000000000")'
+		echo "na"
+	else
+		f_round $(f_compute "$numerator / $denominator") $decimal_places
+	fi
 }
 
-function f_getActiveValsIdList {
-	typeset last_id=$(f_runOpera "sfcc.lastValidatorID();")
+# f_writeActiveValsList | wc -l
+function f_getTotalActiveVals {
+	typeset last_id=$(f_opera_getLastValidatorId)
+
+	typeset val_total=0
+	for val_id in $(seq 1 $last_id); do 
+		typeset validator=$(f_runOpera "sfcc.getValidator($val_id);")
+		typeset hit=`echo $validator | grep -v -F '[1,' | grep -v -F '[8' | wc -l`
+		if [[ $hit -eq 1 ]]; then
+			((val_total++))
+		fi
+	done
+	
+	echo $val_total
+}
+
+function f_writeActiveValsList {
+	typeset outfile=$1
+
+	typeset last_id=$(f_opera_getLastValidatorId)
 
 	for val_id in $(seq 1 $last_id); do 
 		typeset validator=$(f_runOpera "sfcc.getValidator($val_id);")
 		typeset hit=`echo $validator | grep -v -F '[1,' | grep -v -F '[8' | wc -l`
 		if [[ $hit -eq 1 ]]; then
-			echo $val_id
+			echo "$val_id: $validator" >> $outfile
 		fi
 	done
+}
+
+function f_opera_getStake {
+	typeset address=$1
+	typeset validator_id=$2
+
+	f_runOpera "sfcc.getStake('$address', $validator_id);"
+}
+
+function f_opera_getUnlockedStake {
+	typeset address=$1
+	typeset validator_id=$2
+
+	f_runOpera "sfcc.getUnlockedStake('$address', $validator_id);"
+}
+
+function f_opera_getLockedStake {
+	typeset address=$1
+	typeset validator_id=$2
+
+	f_runOpera "sfcc.getLockedStake('$address', $validator_id);"
+}
+
+function f_opera_getDelegated {
+	typeset id=$1
+
+	f_runOpera "sfcc.getValidator($id)[3];"
+}
+
+function f_opera_getLastValidatorId {
+	f_runOpera "sfcc.lastValidatorID();"
+}
+
+function f_opera_getValidator {
+	typeset id=$1
+	
+	f_runOpera "sfcc.getValidator($id);"
+}
+
+function f_opera_getEpoch {
+	f_runOpera "sfcc.currentEpoch();"
 }
 
 function f_runOpera {
@@ -121,7 +200,14 @@ function f_runOpera {
 
 function f_convertLemNumber {
 	typeset lem_number=$1
+	typeset decimal_places=$2
 	
-	typeset converted=`echo $lem_number | sed s#e+#*10^#`
-	echo "${converted}/${LEM_PARTICLE}" | bc -l
+	typeset substituted=`echo $lem_number | sed s#e+#*10^#`
+	typeset converted=`echo "${substituted}/${LEM_PARTICLE}" | bc -l`
+	
+	if [[ -z $decimal_places ]]; then
+		echo $converted
+	else
+		f_round "$converted" $decimal_places
+	fi
 }
