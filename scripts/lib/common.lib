@@ -83,25 +83,33 @@ function f_printRewards {
 	#echo "|$epoch| id=$id $pending_rewards $previous_rewards $total_stake $unlocked_stake $locked_stake $total_delegated $decimal_places $diffs_only" >> $tmp_out
 	
 	typeset rewards_rounded=$(f_convertLemNumber "$pending_rewards" $decimal_places)
+	pending_rewards=$(f_round $(f_compute $(f_substituteLemNumber "$pending_rewards")) 0)	# important! sub out e+21's, then convert to actual BIG lemon number, then round
 	typeset diff=$(f_compute "$pending_rewards - $previous_rewards")
 	typeset diff_rounded=$(f_convertLemNumber "$diff" $decimal_places)
-	#echo "$rewards_rounded $diff $diff_rounded" >> $tmp_out
+	#echo -e "\t$rewards_rounded $diff $diff_rounded" >> $tmp_out
 	
 	typeset    total_per_staked=$(f_divideAndRound "$diff" "$total_stake" 6)
 	typeset  total_per_unlocked=$(f_divideAndRound "$diff" "$unlocked_stake" 6)
 	typeset    total_per_locked=$(f_divideAndRound "$diff" "$locked_stake" 6)
 	typeset total_per_delegated=$(f_divideAndRound "$diff" "$total_delegated" 6)
-	#echo "$total_per_staked $total_per_unlocked $total_per_locked $total_per_delegated" >> $tmp_out
+	
+	typeset     total_stake_converted=$(f_convertLemNumber "$total_stake")
+	typeset total_delegated_converted=$(f_convertLemNumber "$total_delegated")
+	typeset         total_share=$(f_compute "$total_stake_converted+(($total_delegated_converted-$total_stake_converted)*.35)")
+	typeset     total_share_lem=$(f_convertToLemNumber "$total_share")
+	typeset     total_per_share=$(f_divideAndRound "$diff" "$total_share_lem" 6)
+	#echo -e "\t$total_per_staked $total_per_unlocked $total_per_locked $total_per_delegated $total_share $total_share_lem $total_per_share" >> $tmp_out
 	
 	typeset     total_rounded=$(f_convertLemNumber "$total_stake" 0)
 	typeset  unlocked_rounded=$(f_convertLemNumber "$unlocked_stake" 0)
 	typeset    locked_rounded=$(f_convertLemNumber "$locked_stake" 0)
 	typeset delegated_rounded=$(f_convertLemNumber "$total_delegated" 0)
-	#echo "$total_rounded $unlocked_rounded $locked_rounded $delegated_rounded" >> $tmp_out
+	typeset     share_rounded=$(f_convertLemNumber "$total_share_lem" 0)
+	#echo -e "\t$total_rounded $unlocked_rounded $locked_rounded $delegated_rounded $share_rounded" >> $tmp_out
 	
 	if [[ $diffs_only == false || ($diffs_only == true && $diff -ne 0) ]]; then
 		f_printDate
-		printf "%-6s id=%-4s %8s %22s (%21s %8s) [%14s, %12s, %14s, %14s]\n" "|$epoch|" "$id" "$rewards_rounded" "$pending_rewards" "+$diff" "$diff_rounded" "$total_rounded=$total_per_staked" "$unlocked_rounded=$total_per_unlocked" "$locked_rounded=$total_per_locked" "$delegated_rounded=$total_per_delegated"
+		printf "%-6s id=%-4s %8s %22s +(%8s %21s) [%14s, %12s, %14s, %14s, %14s]\n" "|$epoch|" "$id" "$rewards_rounded" "$pending_rewards" "$diff_rounded" "$diff" "$total_rounded=$total_per_staked" "$unlocked_rounded=$total_per_unlocked" "$locked_rounded=$total_per_locked" "$delegated_rounded=$total_per_delegated" "$share_rounded=$total_per_share"
 		#echo "|$epoch| id=$id $rewards_rounded $pending_rewards (+$diff $diff_rounded) [$total_rounded=$total_per_staked, $unlocked_rounded=$total_per_unlocked, $locked_rounded=$total_per_locked]"
 	fi
 }
@@ -202,7 +210,7 @@ function f_convertLemNumber {
 	typeset lem_number=$1
 	typeset decimal_places=$2
 	
-	typeset substituted=`echo $lem_number | sed s#e+#*10^#`
+	typeset substituted=`f_substituteLemNumber $lem_number`
 	typeset converted=`echo "${substituted}/${LEM_PARTICLE}" | bc -l`
 	
 	if [[ -z $decimal_places ]]; then
@@ -210,4 +218,16 @@ function f_convertLemNumber {
 	else
 		f_round "$converted" $decimal_places
 	fi
+}
+
+function f_substituteLemNumber {
+	typeset lem_number=$1
+	
+	echo $lem_number | sed s#e+#*10^#
+}
+
+function f_convertToLemNumber {
+	typeset number=$1
+
+	echo "${number}*${LEM_PARTICLE}" | bc -l
 }

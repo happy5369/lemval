@@ -8,7 +8,6 @@ function f_calculateRewards {
 	typeset epoch=$3
 	typeset decimal_places=$4
 	
-### bug ends here
 	typeset previous_rewards=`grep "id=$val_id " < $tmp_file1 | awk '{print $6}'`	# if no match, then it's empty, which is 0, for first go around
 	if [[ -z $previous_rewards ]]; then
 		previous_rewards=0
@@ -50,7 +49,6 @@ typeset output_filename=$(f_getRunOutputFilename_Helper "rewards_check_active_va
 			do	
 				typeset      val_id=`echo "$line" | awk '{print $1}' | tr -d ":"`
 				typeset val_address=`echo "$line" | awk '{print $8}' | tr -d "\"" | tr -d "]"`
-	### bug starts here
 				typeset rewards=`f_calculateRewards "$val_id" "$val_address" "$previous_epoch" 4`
 				echo "$rewards"	# quotes important or else it won't do printf formatting properly
 				echo "$rewards" >> $tmp_file2
