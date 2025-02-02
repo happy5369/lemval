@@ -67,6 +67,10 @@ function f_opera_getRewards {
 	f_runOpera "sfcc.pendingRewards('$address', $validator_id);"
 }
 
+function f_getRewardsPrintoutFormat {
+	echo "%-6s %-7s %9s %23s +( %8s %21s ) [ %15s, %12s, %15s, %15s, %15s ]\n"
+}
+
 function f_printRewards {
 	typeset id=$1
 	typeset pending_rewards=$2
@@ -109,7 +113,8 @@ function f_printRewards {
 	
 	if [[ $diffs_only == false || ($diffs_only == true && $diff -ne 0) ]]; then
 		f_printDate
-		printf "%-6s id=%-4s %8s %22s +(%8s %21s) [%14s, %12s, %14s, %14s, %14s]\n" "|$epoch|" "$id" "$rewards_rounded" "$pending_rewards" "$diff_rounded" "$diff" "$total_rounded=$total_per_staked" "$unlocked_rounded=$total_per_unlocked" "$locked_rounded=$total_per_locked" "$delegated_rounded=$total_per_delegated" "$share_rounded=$total_per_share"
+		typeset rewardsPrintoutFormat=`f_getRewardsPrintoutFormat`
+		printf "$rewardsPrintoutFormat" "|$epoch|" "id=$id" "$rewards_rounded" "$pending_rewards" "$diff_rounded" "$diff" "$total_rounded=$total_per_staked" "$unlocked_rounded=$total_per_unlocked" "$locked_rounded=$total_per_locked" "$delegated_rounded=$total_per_delegated" "$share_rounded=$total_per_share"
 		#echo "|$epoch| id=$id $rewards_rounded $pending_rewards (+$diff $diff_rounded) [$total_rounded=$total_per_staked, $unlocked_rounded=$total_per_unlocked, $locked_rounded=$total_per_locked]"
 	fi
 }
