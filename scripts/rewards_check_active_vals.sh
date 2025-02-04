@@ -73,7 +73,7 @@ typeset output_filename=$(f_getRunOutputFilename_Helper "rewards_check_active_va
 			typeset    total_shared=`awk '{s+=$20}END{print s}' $tmp_file3`
 			#printf "rewards: total=%s, epoch=%s\n" "$total_sum" "$epoch_sum"
 			typeset rewardsPrintoutFormat=`f_getRewardsPrintoutFormat`
-			echo -n "---------------- "
+			echo -n "------ --------- "
 			printf "$rewardsPrintoutFormat" "|$previous_epoch|" "" "$total_sum" "" "$epoch_sum" "" "$total_staked" "$total_unlocked" "$total_locked" "$total_delegated" "$total_shared"
 			#printf "rewards: total=%s, epoch=%s\n" "$total_sum" "$epoch_sum" >> $tmp_file3
 			#printf "staked:  total=%s, delegated=%s\n" "$total_staked" "$total_delegated"
