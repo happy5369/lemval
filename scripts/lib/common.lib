@@ -164,6 +164,10 @@ function f_writeActiveValsList {
 	done
 }
 
+function f_opera_getTotalStake {
+	f_runOpera "sfcc.totalStake();"
+}
+
 function f_opera_getStake {
 	typeset address=$1
 	typeset validator_id=$2
@@ -203,6 +207,10 @@ function f_opera_getValidator {
 
 function f_opera_getEpoch {
 	f_runOpera "sfcc.currentEpoch();"
+}
+
+function f_opera_getBlock {
+	f_runOpera "ftm.blockNumber"
 }
 
 function f_runOpera {

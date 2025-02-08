@@ -16,12 +16,12 @@ typeset output_filename=$(f_getRunOutputFilename_Helper "epoch")
 			previous_time=$current_time
 			
 			# blocks
-			current_block=$(f_runOpera "ftm.blockNumber;")
+			current_block=$(f_opera_getBlock)
 			blocks=$((current_block-previous_block))
 			previous_block=$current_block
 			
 			# staked
-			current_staked=$(f_runOpera "sfcc.totalStake();")
+			current_staked=$(f_opera_getTotalStake)
 			current_staked=$(f_convertLemNumber "$current_staked")
 			current_staked=$(f_round "$current_staked" "0")	# no decimals 
 			staked=$((current_staked-previous_staked))
