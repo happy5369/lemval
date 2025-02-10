@@ -48,10 +48,10 @@ typeset output_filename=$(f_getRunOutputFilename_Helper "health")
 		if [[ $num_processes -eq 1 ]]; then
 			f_printUp "P"
 
-			 dagSummary=`tail ~/nohup.validator -n 100 | grep "New DAG summary" | wc -l`
-			 llrSummary=`tail ~/nohup.validator -n 100 | grep "New LLR summary" | wc -l`
-		    	      block=`tail ~/nohup.validator -n 500 | grep "New block"       | wc -l`
-			latestBlock=`tail ~/nohup.validator -n 500 | grep "New block"       | tail -n 1 | awk '{print $5}' | sed s#index=##`
+			 dagSummary=`tail $LEM_RUN_ROOT/nohup.validator -n 100 | grep "New DAG summary" | wc -l`
+			 llrSummary=`tail $LEM_RUN_ROOT/nohup.validator -n 100 | grep "New LLR summary" | wc -l`
+		    	      block=`tail $LEM_RUN_ROOT/nohup.validator -n 500 | grep "New block"       | wc -l`
+			latestBlock=`tail $LEM_RUN_ROOT/nohup.validator -n 500 | grep "New block"       | tail -n 1 | awk '{print $5}' | sed s#index=##`
 			if [[ $dagSummary -ge 1 && $llrSummary -ge 1 && $block -ge 1 ]]; then
 				f_printUp "V"
 			else
