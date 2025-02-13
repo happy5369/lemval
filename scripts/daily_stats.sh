@@ -4,8 +4,6 @@ source lib/common.lib
 
 f_checkAndSetBuildTimestamp "$1"
 
-sleep 1.25h
-
 typeset output_filename=$(f_getRunOutputFilename_Helper "daily_stats")
 {
 	typeset previous_rewards=0
