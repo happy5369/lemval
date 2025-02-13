@@ -213,6 +213,16 @@ function f_opera_getBlock {
 	f_runOpera "ftm.blockNumber"
 }
 
+function f_opera_isSlashed {
+	typeset id=$1
+	
+	f_runOpera "sfcc.isSlashed($id);"
+}
+
+function f_opera_getPeers {
+	f_runOpera "net.peerCount;"
+}
+
 function f_runOpera {
 	typeset command=$1
 	
