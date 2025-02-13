@@ -48,7 +48,7 @@ typeset output_filename=$(f_getRunOutputFilename_Helper "daily_stats")
 		typeset roi=$(f_round $(f_compute "$rewards_per_year / $stake"))
 		
 		f_printDate
-		printf "%5s(e) %7s(b) %3s(b/e) %3s(e/h) | %6s(lemx) %3s(v) %2s(p) %5s %3s | %3s(G) %6s(b/d) %3s(dtf) | %6s(i) %6s(o) | \$\$$ %6s(lemx) %6s(mo) %6s(yr) %6sx(roi)\n" "$epochs" "$blocks" "$blocks_per_epoch" "$epochs_per_hour" "$staked" "$vals" "$peers" "$isSlashed" "$stake" "$disk" "$blocks_per_disk" "$days_till_disk_full" "$in" "$out" "$rewards" "$rewards_per_month" "$rewards_per_year" "$roi"
+		printf "%5s(e) %7s(b) %3s(b/e) %3s(e/h) | %6s(lemx) %3s(v) %2s(p) %5s %3s(lemx) | %3s(G) %6s(b/d) %3s(dtf) | %6s(i) %6s(o) | \$\$$ %6s(lemx) %6s(mo) %6s(yr) %6sx(roi)\n" "$epochs" "$blocks" "$blocks_per_epoch" "$epochs_per_hour" "$staked" "$vals" "$peers" "$isSlashed" "$stake" "$disk" "$blocks_per_disk" "$days_till_disk_full" "$in" "$out" "$rewards" "$rewards_per_month" "$rewards_per_year" "$roi"
 		
 		previous_epoch=$current_epoch
 		previous_block=$current_block
