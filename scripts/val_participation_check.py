@@ -38,5 +38,5 @@ for line in lines:
 
 print(f"The last {epochs} epochs - {len(my_dict)} vals")
 for key, value in dict(sorted(my_dict.items())).items():
-    print(f"{key}: {value} ({round(value/int(epochs)*100, 2)})%")
+    print(f"{key:3}: {value:{len(epochs)}} ({(value/int(epochs)):.2%})")
     
