@@ -209,6 +209,10 @@ function f_opera_getEpoch {
 	f_runOpera "sfcc.currentEpoch();"
 }
 
+function f_opera_getSealedEpoch {
+	f_runOpera "sfcc.currentSealedEpoch();"
+}
+
 function f_opera_getBlock {
 	f_runOpera "ftm.blockNumber"
 }
@@ -221,6 +225,12 @@ function f_opera_isSlashed {
 
 function f_opera_getPeers {
 	f_runOpera "net.peerCount;"
+}
+
+function f_opera_getEpochValidatorIds {
+	typeset epoch=$1
+	
+	f_runOpera "sfcc.getEpochValidatorIDs($epoch);"
 }
 
 function f_runOpera {
