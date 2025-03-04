@@ -11,7 +11,7 @@ typeset output_filename=$(f_getRunOutputFilename_Helper "rewards2")
 	typeset previous_epoch=0
 
 	if [[ -z $LEM_ADDRESS || -z $LEM_VALIDATOR_ID ]]; then
-		echo "LEM_ADDRESS AND LEM_VALIDATOR_ID ID BOTH need to be set!"
+		echo "LEM_ADDRESS AND LEM_VALIDATOR_ID BOTH need to be set!"
 		echo "LEM_ADDRESS=$LEM_ADDRESS"
 		echo "LEM_VALIDATOR_ID=$LEM_VALIDATOR_ID"
 		exit
