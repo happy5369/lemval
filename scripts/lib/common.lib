@@ -264,3 +264,33 @@ function f_convertToLemNumber {
 
 	echo "${number}*${LEM_PARTICLE}" | bc -l
 }
+
+function f_getRewardsPayoutTotal {
+	typeset filename=$1
+	typeset epoch_number=$2
+	typeset print_data=$3
+
+	if [[ -z $filename || -z $epoch_number ]]; then
+		echo "filename AND epoch_number BOTH need to be set!"
+		echo "filename=$filename"
+		echo "epoch_number=$epoch_number"
+		exit
+	fi
+	
+	typeset last_24_data=`grep -F '-' "$filename" | sed -n "/|${epoch_number}|/,\\$p"`
+	typeset  summaries_data=`echo "$last_24_data" | grep -v "id="`
+	typeset collection_data=`echo "$last_24_data" | grep    "id="`
+	typeset   summaries_total=`echo "$summaries_data"  | awk '{sum += $6} END {print sum}'`
+	typeset collections_total=`echo "$collection_data" | awk '{sum += $8} END {print sum}'`
+	if [[ $print_data == true ]]; then
+		echo "========== summary data =========="
+		echo "$summaries_data"
+		echo "========== collection data =========="
+		echo "$collection_data"
+		echo "========== totals =========="
+		echo "$summaries_total"
+		echo "$collections_total"
+		echo "========== GRAND =========="
+	fi
+	echo "$summaries_total + $collections_total*-1" | bc
+}
