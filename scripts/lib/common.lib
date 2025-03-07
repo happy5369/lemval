@@ -292,5 +292,5 @@ function f_getRewardsPayoutTotal {
 		echo "$collections_total"
 		echo "========== GRAND =========="
 	fi
-	echo "$summaries_total + $collections_total*-1" | bc
+	f_compute "$summaries_total + $collections_total*-1"
 }
