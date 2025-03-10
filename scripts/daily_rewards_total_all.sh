@@ -27,6 +27,7 @@ typeset output_filename=$(f_getRunOutputFilename_Helper "daily_rewards_total_all
 	
 	while [[ 1 ]]; do
 		typeset total_daily=`f_getRewardsPayoutTotal "$LEM_TMP_AREA/$filename" "$current_epoch"`
+		total_daily=`f_compute "$total_daily/.65"`	# add in delegators as well
 		typeset total_yearly=`f_compute "$total_daily*365"`
 		
 		typeset diff_daily=$(f_compute "$total_daily-$daily_expected")
