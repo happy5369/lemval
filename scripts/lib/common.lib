@@ -277,9 +277,9 @@ function f_getRewardsPayoutTotal {
 		exit
 	fi
 	
-	typeset last_24_data=`grep -F '-' "$filename" | sed -n "/|${epoch_number}|/,\\$p"`
-	typeset  summaries_data=`echo "$last_24_data" | grep -v "id="`
-	typeset collection_data=`echo "$last_24_data" | grep    "id="`
+	typeset last_X_data=`grep -F '-' "$filename" | sed -n "/|${epoch_number}|/,\\$p"`
+	typeset  summaries_data=`echo "$last_X_data" | grep -v "id="`
+	typeset collection_data=`echo "$last_X_data" | grep    "id="`
 	typeset   summaries_total=`echo "$summaries_data"  | awk '{sum += $6} END {print sum}'`
 	typeset collections_total=`echo "$collection_data" | awk '{sum += $8} END {print sum}'`
 	if [[ $print_data == true ]]; then
