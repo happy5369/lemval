@@ -14,6 +14,8 @@ typeset output_filename=$(f_getRunOutputFilename_Helper "daily_rewards_total_all
 		exit
 	fi
 	
+	filename=$(f_resolveFilename "$filename")
+	
 	typeset current_epoch=0
 	
 	typeset staked_pool=20000
@@ -26,7 +28,7 @@ typeset output_filename=$(f_getRunOutputFilename_Helper "daily_rewards_total_all
 	echo "$daily_expected"
 	
 	while [[ 1 ]]; do
-		typeset total_daily=`f_getRewardsPayoutTotal "$LEM_TMP_AREA/$filename" "$current_epoch"`
+		typeset total_daily=`f_getRewardsPayoutTotal "$filename" "$current_epoch"`
 		total_daily=`f_compute "$total_daily/.65"`	# add in delegators as well
 		typeset total_yearly=`f_compute "$total_daily*365"`
 		
@@ -36,7 +38,7 @@ typeset output_filename=$(f_getRunOutputFilename_Helper "daily_rewards_total_all
 		f_printDate
 		printf "|%-4s| %4.3f %6.3f (%2.2f %s)\n" "$current_epoch" "$total_daily" "$total_yearly" "$diff_daily" "$diff_yearly"
 		
-		current_epoch=`grep -F '-' $LEM_TMP_AREA/$filename | tail -n 1 | cut -d ' ' -f3 | tr -d '|'`
+		current_epoch=`grep -F '-' "$filename" | tail -n 1 | cut -d ' ' -f3 | tr -d '|'`
 		
 		sleep 24h;
 	done

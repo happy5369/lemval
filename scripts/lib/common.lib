@@ -294,3 +294,20 @@ function f_getRewardsPayoutTotal {
 	fi
 	f_compute "$summaries_total + $collections_total*-1"
 }
+
+function f_resolveFilename {
+	typeset filename=$1
+	
+	if [[ -z $filename ]]; then
+		echo "filename needs to be set!"
+		echo "filename=$filename"
+		exit
+	fi
+
+	if [[ `basename $filename` == "$filename" ]]; then
+		# there is no directories (i.e. no forward slashes in filename), prepend TMP_AREA
+		filename=$LEM_TMP_AREA/$filename
+	fi
+
+	echo "$filename"
+}
