@@ -9,7 +9,7 @@ typeset output_filename=$(f_getRunOutputFilename_Helper "daily_rewards_total_all
 	# cmdline param
 	typeset filename=$1
 	if [[ -z $filename ]]; then
-		echo "filename needs to be set!"
+		echo "filename needs to be set! AND it needs to be a 'rewards_check_active_vals.out' file to parse!"
 		echo "filename=$filename"
 		exit
 	fi
