@@ -1,5 +1,7 @@
 #!/bin/bash
 
+### run this right after midnight, should be able to be run anytime, but b/c of vnstat, we have to run after midnight, if that wasn't there, we could run anytime 
+
 source lib/common.lib
 
 f_checkAndSetBuildTimestamp "$1"

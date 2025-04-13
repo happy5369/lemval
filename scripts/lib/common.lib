@@ -126,7 +126,7 @@ function f_divideAndRound {
 	
 	numerator=`f_convertLemNumber $numerator`
 	denominator=`f_convertLemNumber $denominator`
-	denominator_rounded=`f_round $denominator 0`
+	typeset denominator_rounded=`f_round $denominator 0`
 	if [[ $denominator_rounded -eq 0 ]]; then	# have to use denominator_rounded or else you'll get 'syntax error: invalid arithmetic operator (error token is ".00000000000000000000")'
 		echo "na"
 	else
