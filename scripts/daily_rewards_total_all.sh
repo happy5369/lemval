@@ -18,8 +18,8 @@ typeset output_filename=$(f_getRunOutputFilename_Helper "daily_rewards_total_all
 	
 	typeset current_epoch=0
 	
-	typeset staked_pool=20000
-	typeset locked_pool=200000
+	typeset staked_pool=25000
+	typeset locked_pool=250000
 	typeset yearly_expected=$((staked_pool+locked_pool))
 	typeset daily_expected=$(f_compute "$yearly_expected/365")
 	
@@ -36,7 +36,7 @@ typeset output_filename=$(f_getRunOutputFilename_Helper "daily_rewards_total_all
 		typeset diff_yearly=$(f_compute "$total_yearly-$yearly_expected")
 		
 		f_printDate
-		printf "|%-4s| %4.3f %6.3f (%2.2f %s)\n" "$current_epoch" "$total_daily" "$total_yearly" "$diff_daily" "$diff_yearly"
+		printf "|%-4s| %4.3f %6.3f (%3.2f %6.2f)\n" "$current_epoch" "$total_daily" "$total_yearly" "$diff_daily" "$diff_yearly"
 		
 		current_epoch=`grep -F '-' "$filename" | tail -n 1 | cut -d ' ' -f3 | tr -d '|'`
 		
