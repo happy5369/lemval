@@ -39,7 +39,7 @@ typeset output_filename=$(f_getRunOutputFilename_Helper "daily_stats")
 		days_till_disk_full="na"
 		if [[ $disk -ne 0 ]]; then
 			blocks_per_disk=$((blocks / disk))
-			total_disk=`df -h | tr -s ' ' | grep sda2 | cut -f2 -d ' ' | sed 's#G##'`	#cut -f4 would be disk_left not disk_total
+			total_disk=`df -BG | tr -s ' ' | grep $LEM_STORAGE_DRIVE | cut -f2 -d ' ' | sed 's#G##'`	#cut -f4 would be disk_left not disk_total
 			days_till_disk_full=$(((total_disk-current_disk) / disk))
 		fi
 
