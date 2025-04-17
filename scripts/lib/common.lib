@@ -311,3 +311,7 @@ function f_resolveFilename {
 
 	echo "$filename"
 }
+
+function f_getLemxPrice {
+	curl -s "https://api.coingecko.com/api/v3/simple/price?ids=lemon-2&vs_currencies=usd" | grep -o '"usd":[0-9.]*' | sed 's#"usd":##'	
+}
