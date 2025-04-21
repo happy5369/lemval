@@ -315,3 +315,10 @@ function f_resolveFilename {
 function f_getLemxPrice {
 	curl -s "https://api.coingecko.com/api/v3/simple/price?ids=lemon-2&vs_currencies=usd" | grep -o '"usd":[0-9.]*' | sed 's#"usd":##'	
 }
+
+# should be data formatted from rewards_check_active_vals
+function f_removeDateAndTime {
+	typeset data=$1
+	
+	echo "$data" | cut -d' ' -f3-	# -f3- start from 3rd and include all remaining columns
+}
