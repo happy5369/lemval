@@ -36,7 +36,7 @@ typeset output_filename=$(f_getRunOutputFilename_Helper "daily_rewards_total_all
 		typeset diff_yearly=$(f_compute "$total_yearly-$yearly_expected")
 		
 		f_printDate
-		printf "|%-4s| %4.3f %6.3f (%3.2f %6.2f)\n" "$current_epoch" "$total_daily" "$total_yearly" "$diff_daily" "$diff_yearly"
+		printf "|%-4s| %7.3f %10.3f (%6.2f %9.2f)\n" "$current_epoch" "$total_daily" "$total_yearly" "$diff_daily" "$diff_yearly"
 		
 		current_epoch=`grep -F '-' "$filename" | tail -n 1 | cut -d ' ' -f3 | tr -d '|'`
 		
