@@ -68,10 +68,10 @@ function f_opera_getRewards {
 }
 
 function f_getRewardsPrintoutFormat {
-	echo "%-6s %-7s %9s %23s +( %8s %21s ) [ %15s, %12s, %15s, %15s, %15s ]\n"
+	echo "%-6s %-7s %9s %23s +( %8s %21s ) [ %15s, %12s, %15s, %15s, %15s ] %3d%% %7s %7s\n"
 }
 
-function f_printRewards {
+function f_printRewards2 {
 	typeset id=$1
 	typeset pending_rewards=$2
 	typeset previous_rewards=$3
@@ -113,8 +113,15 @@ function f_printRewards {
 	
 	if [[ $diffs_only == false || ($diffs_only == true && $diff -ne 0) ]]; then
 		f_printDate
-		typeset rewardsPrintoutFormat=`f_getRewardsPrintoutFormat`
-		printf "$rewardsPrintoutFormat" "|$epoch|" "id=$id" "$rewards_rounded" "$pending_rewards" "$diff_rounded" "$diff" "$total_rounded=$total_per_staked" "$unlocked_rounded=$total_per_unlocked" "$locked_rounded=$total_per_locked" "$delegated_rounded=$total_per_delegated" "$share_rounded=$total_per_share"
+		typeset rewards_printout_format=`f_getRewardsPrintoutFormat`
+		typeset capacity_percent=`f_getCapacityPercent "$total_stake_converted" "$total_delegated_converted"`
+		typeset capacity_percent_trimmed=${capacity_percent%.*}	# strips decimals
+		typeset total_capacity=`f_getTotalCapacity "$total_stake_converted"`
+		typeset total_capacity_rounded=$(f_round "$total_capacity" 0)
+		typeset remaining_capacity=`f_getRemainingCapacity "$total_stake_converted" "$total_delegated_converted"`
+		typeset remaining_capacity_rounded=$(f_round "$remaining_capacity" 0)
+		printf "$rewards_printout_format" "|$epoch|" "id=$id" "$rewards_rounded" "$pending_rewards" "$diff_rounded" "$diff" "$total_rounded=$total_per_staked" "$unlocked_rounded=$total_per_unlocked" "$locked_rounded=$total_per_locked" "$delegated_rounded=$total_per_delegated" "$share_rounded=$total_per_share" "$capacity_percent_trimmed" "$total_capacity_rounded" "$remaining_capacity_rounded"
+		#printf "$rewards_printout_format" "|$epoch|" "id=$id" "$rewards_rounded" "$pending_rewards" "$diff_rounded" "$diff" "$total_rounded=$total_per_staked" "$unlocked_rounded=$total_per_unlocked" "$locked_rounded=$total_per_locked" "$delegated_rounded=$total_per_delegated" "$share_rounded=$total_per_share"
 		#echo "|$epoch| id=$id $rewards_rounded $pending_rewards (+$diff $diff_rounded) [$total_rounded=$total_per_staked, $unlocked_rounded=$total_per_unlocked, $locked_rounded=$total_per_locked]"
 	fi
 }
@@ -263,6 +270,35 @@ function f_convertToLemNumber {
 	typeset number=$1
 
 	echo "${number}*${LEM_PARTICLE}" | bc -l
+}
+
+function f_getCapacityRatio {
+	typeset self_stake=$1
+	typeset total_delegated=$2
+
+	f_compute "$total_delegated / $(f_getTotalCapacity "$self_stake")"
+}
+
+function f_getCapacityPercent {
+	typeset self_stake=$1
+	typeset total_delegated=$2
+	
+	typeset ratio=`f_getCapacityRatio "$self_stake" "$total_delegated"`
+	f_compute "$ratio * 100"
+}
+
+function f_getRemainingCapacity {
+	typeset self_stake=$1
+	typeset total_delegated=$2
+
+	typeset capacity=`f_getTotalCapacity "$self_stake"`
+	f_compute "$capacity - $total_delegated"
+}
+
+function f_getTotalCapacity {
+	typeset self_stake=$1
+
+	f_compute "$self_stake * 11"
 }
 
 function f_getRewardsPayoutTotal {

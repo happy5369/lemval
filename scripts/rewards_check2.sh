@@ -28,7 +28,7 @@ typeset output_filename=$(f_getRunOutputFilename_Helper "rewards2")
 			typeset   getLockedStake=$(f_opera_getLockedStake $LEM_ADDRESS $LEM_VALIDATOR_ID)
 			typeset     getDelegated=$(f_opera_getDelegated $LEM_VALIDATOR_ID)
 			
-			f_printRewards "$LEM_VALIDATOR_ID" "$pending_rewards" "$previous_rewards" "$previous_epoch" "$getStake" "$getUnlockedStake" "$getLockedStake" "$getDelegated" "$decimal_places" "true"
+			f_printRewards2 "$LEM_VALIDATOR_ID" "$pending_rewards" "$previous_rewards" "$previous_epoch" "$getStake" "$getUnlockedStake" "$getLockedStake" "$getDelegated" "$decimal_places" "true"
 			
 			previous_rewards=$pending_rewards
 			previous_epoch=$current_epoch
