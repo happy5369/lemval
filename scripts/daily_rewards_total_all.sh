@@ -8,6 +8,8 @@ typeset output_filename=$(f_getRunOutputFilename_Helper "daily_rewards_total_all
 {
 	# cmdline param
 	typeset filename=$1
+	typeset current_epoch=$2
+	
 	if [[ -z $filename ]]; then
 		echo "filename needs to be set! AND it needs to be a 'rewards_check_active_vals.out' file to parse!"
 		echo "filename=$filename"
@@ -16,7 +18,9 @@ typeset output_filename=$(f_getRunOutputFilename_Helper "daily_rewards_total_all
 	
 	filename=$(f_resolveFilename "$filename")
 	
-	typeset current_epoch=0
+	if [[ -z $current_epoch ]]; then
+		current_epoch=0
+	fi
 	
 	typeset staked_pool=25000
 	typeset locked_pool=250000
