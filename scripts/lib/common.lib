@@ -175,6 +175,27 @@ function f_opera_getTotalStake {
 	f_runOpera "sfcc.totalStake();"
 }
 
+# FIXME: BROKEN, this is using f_opera_getDelegated, which is WRONG!!! need to use f_opera_getStake, but I also need an addy to pass that in.. need to figure out how/wehre to get that
+#
+# returns total as a regular number (NON lem number)
+function f_opera_getTotalValStake {
+	#typeset epoch=$1, commenting out cause we can't get delegation for an epoch, we can just sum the current delegation for what is NOW
+	
+	typeset epoch=`f_opera_getEpoch`
+	
+	typeset val_list=$(f_opera_getEpochValidatorIds "$epoch")
+	# Remove commas and brackets from Active Val list
+	typeset val_list=`echo $val_list | tr -d ',[]'`
+	
+	typeset totalStake=0
+	for val_id in $val_list; do
+		typeset stake=$(f_convertLemNumber $(f_opera_getDelegated "$val_id"))
+		totalStake=`f_compute "$totalStake + $stake"`
+	done
+	
+	echo "$stake"
+}
+
 function f_opera_getStake {
 	typeset address=$1
 	typeset validator_id=$2

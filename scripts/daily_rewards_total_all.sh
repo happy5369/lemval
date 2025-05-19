@@ -33,7 +33,18 @@ typeset output_filename=$(f_getRunOutputFilename_Helper "daily_rewards_total_all
 	
 	while [[ 1 ]]; do
 		typeset total_daily=`f_getRewardsPayoutTotal "$filename" "$current_epoch"`
-		total_daily=`f_compute "$total_daily/.65"`	# add in delegators as well
+		typeset vals_staked=$(f_opera_getTotalValStake) # FIXME: this doesn't really work for passed in epochs b/c it doesn't go back in time capture what the amount was, it'll get maybe an accurate val list at the time, but it'll use those vals to then get the current delegation for those vals not the delegation at that epoch
+		typeset total_staked=$(f_convertLemNumber $(f_opera_getTotalStake))
+
+		echo "val   stake: $vals_staked"
+		echo "total stake: $total_staked"
+		typeset total_delegated=`f_compute "$total_staked - $vals_staked"`
+		typeset percent_vals_get_of_delegators=.35
+		typeset total_coin_power=`f_compute "$total_delegated*$percent_vals_get_of_delegators + $vals_staked"`
+		typeset total_coin_power_percentage=`f_compute "$total_coin_power / $total_staked"`
+		echo 
+		
+		total_daily=`f_compute "$total_daily/$total_coin_power_percentage"`	# divide by total_power b/c X rewards went to X% vals, so then X/X% = what went to ALL, i.e. if 100 lemx went to vals and vals are 60% power, then 100/.6 = 166.67 went to everyone
 		typeset total_yearly=`f_compute "$total_daily*365"`
 		
 		typeset diff_daily=$(f_compute "$total_daily-$daily_expected")
