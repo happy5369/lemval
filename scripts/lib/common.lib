@@ -352,6 +352,40 @@ function f_getRewardsPayoutTotal {
 	f_compute "$summaries_total + $collections_total*-1"
 }
 
+function f_getTotalCoinPower {
+	typeset filename=$1
+	typeset epoch_number=$2
+
+	if [[ -z $filename || -z $epoch_number ]]; then
+		echo "filename AND epoch_number BOTH need to be set!"
+		echo "filename=$filename"
+		echo "epoch_number=$epoch_number"
+		exit
+	fi
+	
+	typeset epoch_data=""
+	epoch_data=`f_getEpochData "$filename" "$epoch_number"`
+	epoch_data=`f_getSummaryLine "$epoch_data"`
+	echo "$epoch_data" | awk '{print $13}'
+}
+
+function f_getTotalStaked {
+	typeset filename=$1
+	typeset epoch_number=$2
+
+	if [[ -z $filename || -z $epoch_number ]]; then
+		echo "filename AND epoch_number BOTH need to be set!"
+		echo "filename=$filename"
+		echo "epoch_number=$epoch_number"
+		exit
+	fi
+	
+	typeset epoch_data=""
+	epoch_data=`f_getEpochData "$filename" "$epoch_number"`
+	epoch_data=`f_getSummaryLine "$epoch_data"`
+	echo "$epoch_data" | awk '{sub(/,$/, "", $12); print $12}'
+}
+
 function f_resolveFilename {
 	typeset filename=$1
 	
@@ -392,5 +426,11 @@ function f_removeSummaryLines {
 	typeset data=$1
 	
 	echo "$data" | grep -vF -- '---'
+}
+
+function f_getSummaryLine {
+	typeset data=$1
+	
+	echo "$data" | grep -F -- '---'
 }
 ###

@@ -27,24 +27,20 @@ typeset output_filename=$(f_getRunOutputFilename_Helper "daily_rewards_total_all
 	typeset yearly_expected=$((staked_pool+locked_pool))
 	typeset daily_expected=$(f_compute "$yearly_expected/365")
 	
+	typeset percent_vals_get_of_delegators=.35
+	
 	echo "========== Expected =========="
 	echo "$yearly_expected"
 	echo "$daily_expected"
 	
 	while [[ 1 ]]; do
 		typeset total_daily=`f_getRewardsPayoutTotal "$filename" "$current_epoch"`
-		typeset vals_staked=$(f_opera_getTotalValStake) # FIXME: this doesn't really work for passed in epochs b/c it doesn't go back in time capture what the amount was, it'll get maybe an accurate val list at the time, but it'll use those vals to then get the current delegation for those vals not the delegation at that epoch
-		typeset total_staked=$(f_convertLemNumber $(f_opera_getTotalStake))
-
-		echo "val   stake: $vals_staked"
-		echo "total stake: $total_staked"
-		typeset total_delegated=`f_compute "$total_staked - $vals_staked"`
-		typeset percent_vals_get_of_delegators=.35
-		typeset total_coin_power=`f_compute "$total_delegated*$percent_vals_get_of_delegators + $vals_staked"`
+		typeset total_coin_power=`f_getTotalCoinPower "$filename" "$current_epoch"`
+		typeset total_staked=`f_getTotalStaked "$filename" "$current_epoch"`
 		typeset total_coin_power_percentage=`f_compute "$total_coin_power / $total_staked"`
-		echo 
 		
-		total_daily=`f_compute "$total_daily/$total_coin_power_percentage"`	# divide by total_power b/c X rewards went to X% vals, so then X/X% = what went to ALL, i.e. if 100 lemx went to vals and vals are 60% power, then 100/.6 = 166.67 went to everyone
+		total_daily=`f_compute "$total_daily/$total_coin_power_percentage"`	# divide by total_power b/c X rewards went to X% vals, so then X/X% = what went to ALL, i.e. if 100 lemx went to vals and vals are 60% power, then 100/.6 = 166.67 went to everyone		
+		# *** Note the payouts here WOULD include gas fees, so for a more accurate payout from pools, you would want to then subtract last 24 hours of gas fees from total_daily
 		typeset total_yearly=`f_compute "$total_daily*365"`
 		
 		typeset diff_daily=$(f_compute "$total_daily-$daily_expected")
