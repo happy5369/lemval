@@ -43,17 +43,21 @@ typeset output_filename=$(f_getRunOutputFilename_Helper "daily_stats")
 			days_till_disk_full=$(((total_disk-current_disk) / disk))
 		fi
 
-		typeset rewards=$(f_compute "$current_rewards - $previous_rewards")
-		typeset rewards_per_month=$(f_compute "$rewards * 30")
-		typeset rewards_per_year=$(f_compute "$rewards_per_month * 12")
+		typeset rewards_per_day=$(f_compute "$current_rewards - $previous_rewards")
+		typeset rewards_per_week=$(f_round $(f_compute "$rewards_per_day * 7"))
+		typeset rewards_per_month=$(f_round $(f_compute "$rewards_per_day * 30"))
+		typeset rewards_per_year=$(f_round $(f_compute "$rewards_per_month * 12"))
 		typeset stake=$(f_convertLemNumber $(f_opera_getStake "$LEM_ADDRESS" "$LEM_VALIDATOR_ID") 0)
 		typeset roi=$(f_round $(f_compute "$rewards_per_year / $stake"))
 		
 		typeset lemx_price=$(f_getLemxPrice)
-		typeset rewards_dollars=$(f_round $(f_compute "$rewards * $lemx_price"))
+		typeset rewards_per_day_dollars=$(f_round $(f_compute "$rewards_per_day * $lemx_price"))
+		typeset rewards_per_week_dollars=$(f_round $(f_compute "$rewards_per_week * $lemx_price"))
+		typeset rewards_per_month_dollars=$(f_round $(f_compute "$rewards_per_month * $lemx_price"))
+		typeset rewards_per_year_dollars=$(f_round $(f_compute "$rewards_per_year * $lemx_price"))
 		
 		f_printDate
-		printf "%5s(e) %7s(b) %3s(b/e) %3s(e/h) | %6s(lemx) %3s(v) %2s(p) %5s %3s(lemx) | %3s(G) %6s(b/d) %3s(dtf) | %6s(i) %6s(o) | \$\$ %6s($) %6s(lemx) %6s(mo) %6s(yr) %6sx(roi)\n" "$epochs" "$blocks" "$blocks_per_epoch" "$epochs_per_hour" "$staked" "$vals" "$peers" "$isSlashed" "$stake" "$disk" "$blocks_per_disk" "$days_till_disk_full" "$in" "$out" "$rewards_dollars" "$rewards" "$rewards_per_month" "$rewards_per_year" "$roi"
+		printf "%3s(e) %5s(b) %3s(b/e) %2s(e/h) | %5s(lemx) %2s(v) %2s(p) %5s %3s(lemx) | %2s(G) %5s(b/d) %4s(dtf) | %6s(i) %6s(o) | LEMX [%4s, %5s, %5s, %6s] | \$\$ [%6s, %6s, %7s, %8s] | %4sx\n" "$epochs" "$blocks" "$blocks_per_epoch" "$epochs_per_hour" "$staked" "$vals" "$peers" "$isSlashed" "$stake" "$disk" "$blocks_per_disk" "$days_till_disk_full" "$in" "$out" "$rewards_per_day" "$rewards_per_week" "$rewards_per_month" "$rewards_per_year" "$rewards_per_day_dollars" "$rewards_per_week_dollars" "$rewards_per_month_dollars" "$rewards_per_year_dollars" "$roi"
 		
 		previous_epoch=$current_epoch
 		previous_block=$current_block
