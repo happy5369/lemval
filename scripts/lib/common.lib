@@ -187,10 +187,10 @@ function f_opera_getTotalValStake {
 	# Remove commas and brackets from Active Val list
 	typeset val_list=`echo $val_list | tr -d ',[]'`
 	
-	typeset totalStake=0
+	typeset total_stake=0
 	for val_id in $val_list; do
 		typeset stake=$(f_convertLemNumber $(f_opera_getDelegated "$val_id"))
-		totalStake=`f_compute "$totalStake + $stake"`
+		total_stake=`f_compute "$total_stake + $stake"`
 	done
 	
 	echo "$stake"
