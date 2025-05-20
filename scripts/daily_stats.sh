@@ -17,6 +17,9 @@ typeset output_filename=$(f_getRunOutputFilename_Helper "daily_stats")
 		typeset current_vals=$(f_getTotalActiveVals)
 		typeset current_disk=`du -Shcd 1 /extra 2>/dev/null | grep total | cut -f1 | sed 's#G##'`
 		typeset current_rewards=$(f_convertLemNumber $(f_opera_getRewards "$LEM_ADDRESS" "$LEM_VALIDATOR_ID") 4)
+		if [[ $current_rewards -lt $previous_rewards ]]; then	# collect happened, reset rewards
+			previous_rewards=0
+		fi
 		typeset current_peers=$(f_opera_getPeers)
 		
 		typeset epochs=$((current_epoch-previous_epoch))
