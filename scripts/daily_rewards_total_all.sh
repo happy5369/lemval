@@ -53,7 +53,7 @@ typeset output_filename=$(f_getRunOutputFilename_Helper "daily_rewards_total_all
 		typeset total_delegation_percentage=`f_compute "100 - $total_val_percentage"`
 		
 		f_printDate
-		printf "|%-4s| %7.3f[%.0f %.0f] %10.3f (%6.2f %9.2f) %s:%s\n" "$current_epoch" "$total_daily" "$total_vals" "$total_dels" "$total_yearly" "$diff_daily" "$diff_yearly" "$total_val_percentage" "$total_delegation_percentage"
+		printf "|%-4s| %7.3f[%.0f %.0f] %10.3f (%6.2f %9.2f) %.0f:%.0f\n" "$current_epoch" "$total_daily" "$total_vals" "$total_dels" "$total_yearly" "$diff_daily" "$diff_yearly" "$total_val_percentage" "$total_delegation_percentage"
 		
 		current_epoch=`grep -F -- '---' "$filename" | tail -n 1 | cut -d ' ' -f3 | tr -d '|'`
 		
