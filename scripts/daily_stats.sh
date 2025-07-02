@@ -25,8 +25,6 @@ typeset output_filename=$(f_getRunOutputFilename_Helper "daily_stats")
 		typeset epochs=$((current_epoch-previous_epoch))
 		typeset blocks=$((current_block-previous_block))
 		typeset staked=$((current_staked-previous_staked))
-		typeset vals=$((current_vals-previous_vals))
-		typeset peers=$((current_peers-previous_peers))
 		typeset isSlashed=$(f_opera_isSlashed "$LEM_VALIDATOR_ID")
 		typeset disk=$((current_disk-previous_disk))
 		
@@ -60,13 +58,11 @@ typeset output_filename=$(f_getRunOutputFilename_Helper "daily_stats")
 		typeset rewards_per_year_dollars=$(f_round $(f_compute "$rewards_per_year * $lemx_price"))
 		
 		f_printDate
-		printf "%3s(e) %5s(b) %3s(b/e) %2s(e/h) | %5s(lemx) %2s(v) %2s(p) %5s %3s(lemx) | %2s(G) %5s(b/d) %4s(dtf) | %6s(i) %6s(o) | LEMX [%4s, %5s, %5s, %6s] | \$\$ [%6s, %6s, %7s, %8s] | %4sx | $%s\n" "$epochs" "$blocks" "$blocks_per_epoch" "$epochs_per_hour" "$staked" "$vals" "$peers" "$isSlashed" "$stake" "$disk" "$blocks_per_disk" "$days_till_disk_full" "$in" "$out" "$rewards_per_day" "$rewards_per_week" "$rewards_per_month" "$rewards_per_year" "$rewards_per_day_dollars" "$rewards_per_week_dollars" "$rewards_per_month_dollars" "$rewards_per_year_dollars" "$roi" "$lemx_price"
+		printf "%3s(e) %5s(b) %3s(b/e) %2s(e/h) | %5s(lemx) %2s(v) %2s(p) %5s %3s(lemx) | %2s(G) %5s(b/d) %4s(dtf) | %6s(i) %6s(o) | LEMX [%4s, %5s, %5s, %6s] | \$\$ [%6s, %6s, %7s, %8s] | %4sx | $%s\n" "$epochs" "$blocks" "$blocks_per_epoch" "$epochs_per_hour" "$staked" "$current_vals" "$current_peers" "$isSlashed" "$stake" "$disk" "$blocks_per_disk" "$days_till_disk_full" "$in" "$out" "$rewards_per_day" "$rewards_per_week" "$rewards_per_month" "$rewards_per_year" "$rewards_per_day_dollars" "$rewards_per_week_dollars" "$rewards_per_month_dollars" "$rewards_per_year_dollars" "$roi" "$lemx_price"
 		
 		previous_epoch=$current_epoch
 		previous_block=$current_block
 		previous_staked=$current_staked
-		previous_vals=$current_vals
-		previous_peers=$current_peers
 		previous_disk=$current_disk
 		previous_rewards=$current_rewards
 			
