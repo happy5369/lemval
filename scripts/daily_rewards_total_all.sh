@@ -26,12 +26,14 @@ typeset output_filename=$(f_getRunOutputFilename_Helper "daily_rewards_total_all
 	typeset locked_pool=250000
 	typeset yearly_expected=$((staked_pool+locked_pool))
 	typeset daily_expected=$(f_compute "$yearly_expected/365")
+	typeset      base_rate=$(f_compute "$daily_expected/86400")
 	
 	typeset percent_vals_get_of_delegators=.35
 	
 	echo "========== Expected =========="
-	echo "$yearly_expected"
-	echo "$daily_expected"
+	echo "y=$yearly_expected"
+	echo "d=$daily_expected"
+	echo "s=$base_rate"
 	
 	while [[ 1 ]]; do
 		typeset total_vals=`f_getRewardsPayoutTotal "$filename" "$current_epoch"`
