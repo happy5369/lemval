@@ -15,6 +15,8 @@ typeset output_filename=$(f_getRunOutputFilename_Helper "sensors_hot")
 		exit
 	fi
 	
+	filename=$(f_resolveFilename "$filename")
+	
 	tail -f $filename | awk '
 	  function red(text) { return "\033[31m" text "\033[0m" }
 	  {
