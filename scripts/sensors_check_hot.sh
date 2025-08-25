@@ -51,4 +51,4 @@ typeset output_filename=$(f_getRunOutputFilename_Helper "sensors_hot")
 	  }
 	'
 } 2>&1 | tee $output_filename
-# } 2>&1 | stdbuf -oL tee $output_filename - could do stdbuf -oL on tee as well, but it seems to not need it only on awk
+# } 2>&1 | stdbuf -oL tee $output_filename - could do stdbuf -oL on tee as well, but it seems to not need it, only awk needs it
