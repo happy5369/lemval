@@ -2,7 +2,7 @@
 
 source lib/common.lib
 
-typeset diffs_only=true
+f_checkAndSetBuildTimestamp ""
 
 typeset output_filename=$(f_getRunOutputFilename_Helper "sensors_hot")
 {
@@ -17,7 +17,8 @@ typeset output_filename=$(f_getRunOutputFilename_Helper "sensors_hot")
 	
 	filename=$(f_resolveFilename "$filename")
 	
-	tail -f $filename | awk '
+	# stdbuf -oL a is necessary or else won't dump to file continuously 
+	tail -f $filename | stdbuf -oL awk '
 	  function red(text) { return "\033[31m" text "\033[0m" }
 	  {
 	    match($0, /cpus \(([0-9.]+) *\/ *([0-9.]+)\)/, c)
@@ -50,3 +51,4 @@ typeset output_filename=$(f_getRunOutputFilename_Helper "sensors_hot")
 	  }
 	'
 } 2>&1 | tee $output_filename
+# } 2>&1 | stdbuf -oL tee $output_filename - could do stdbuf -oL on tee as well, but it seems to not need it only on awk
