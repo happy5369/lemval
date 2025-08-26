@@ -2,7 +2,18 @@
 
 source lib/common.lib
 
-typeset diffs_only=true
+function f_compare {
+	typeset       val=$1
+	typeset threshold=$2
+	
+	if [ 1 -eq "$(echo "$val > $threshold" | bc)" ]; then
+		echo "true"
+	else
+		echo ""	# empty string is false in bash, if I did "false" that would still resolve to true in an if-statement conditional
+	fi
+}
+
+typeset diffs_only=false
 
 f_checkAndSetBuildTimestamp "$1"
 
@@ -24,6 +35,14 @@ typeset output_filename=$(f_getRunOutputFilename_Helper "sensors")
 		fi
 		
 		previous=$current
-		sleep 10s;
+		
+		
+		if [[   $(f_compare "$core0" "90") || $(f_compare "$core1" "90") || $(f_compare "$ssd" "50") || $(f_compare "$nvme" "60") ]]; then
+			sleep 10s;	# hot
+		elif [[ $(f_compare "$core0" "75") || $(f_compare "$core1" "75") || $(f_compare "$ssd" "45") || $(f_compare "$nvme" "45") ]]; then
+			sleep 20s;	# warming up
+		else
+			sleep 60s;	# tame
+		fi
 	done
 } 2>&1 | tee $output_filename
