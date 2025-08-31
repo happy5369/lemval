@@ -1,5 +1,9 @@
 #!/bin/bash
 
+# need
+# sudo apt install smartmontools
+# sudo apt install lm-sensors
+
 source lib/common.lib
 
 function f_compare {
