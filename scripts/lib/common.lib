@@ -30,7 +30,7 @@ function f_getRunOutputFilename_Helper {
 	typeset filename=$1
     
 	typeset sep=$FILENAME_SEGMENT_SEPARATOR
-	typeset filename="${LEM_TMP_AREA}${USER}${sep}${BUILD_TIMESTAMP}${sep}${filename}.out"
+	typeset filename="${LEM_OUTPUT_AREA}${USER}${sep}${BUILD_TIMESTAMP}${sep}${filename}.out"
 	
 	typeset parents=`dirname $filename`
 	mkdir -p $parents
@@ -99,7 +99,7 @@ function f_printRewards2 {
 	
 	typeset     total_stake_converted=$(f_convertLemNumber "$total_stake")
 	typeset total_delegated_converted=$(f_convertLemNumber "$total_delegated")
-	typeset         total_share=$(f_compute "$total_stake_converted+(($total_delegated_converted-$total_stake_converted)*.35)")
+	typeset         total_share=$(f_getTotalShare_Helper "$total_stake" "$total_delegated")
 	typeset     total_share_lem=$(f_convertToLemNumber "$total_share")
 	typeset     total_per_share=$(f_divideAndRound "$diff" "$total_share_lem" 6)
 	#echo -e "\t$total_per_staked $total_per_unlocked $total_per_locked $total_per_delegated $total_share $total_share_lem $total_per_share" >> $tmp_out
@@ -115,7 +115,7 @@ function f_printRewards2 {
 		f_printDate
 		typeset rewards_printout_format=`f_getRewardsPrintoutFormat`
 		typeset capacity_percent=`f_getCapacityPercent "$total_stake_converted" "$total_delegated_converted"`
-		typeset capacity_percent_trimmed=${capacity_percent%.*}	# strips decimals
+		typeset capacity_percent_trimmed=`f_stripDecimals "$capacity_percent"`
 		typeset total_capacity=`f_getTotalCapacity "$total_stake_converted"`
 		typeset total_capacity_rounded=$(f_round "$total_capacity" 0)
 		typeset remaining_capacity=`f_getRemainingCapacity "$total_stake_converted" "$total_delegated_converted"`
@@ -173,6 +173,10 @@ function f_writeActiveValsList {
 
 function f_opera_getTotalStake {
 	f_runOpera "sfcc.totalStake();"
+}
+
+function f_opera_getTotalStakeConvertedAndRounded {
+	echo $(f_round $(f_convertLemNumber $(f_opera_getTotalStake)) "0")
 }
 
 # FIXME: BROKEN, this is using f_opera_getDelegated, which is WRONG!!! need to use f_opera_getStake, but I also need an addy to pass that in.. need to figure out how/wehre to get that
@@ -322,6 +326,33 @@ function f_getTotalCapacity {
 	f_compute "$self_stake * 11"
 }
 
+function f_stripDecimals {
+	typeset val=$1
+	echo ${val%.*}	# strips decimals
+}
+
+# aka totalCoinPower
+function f_getTotalShare {
+	typeset id=$1
+	typeset address=$2
+
+	typeset           total_stake=$(f_opera_getStake $address $id)
+	typeset total_delegated_stake=$(f_opera_getDelegated $id)
+	
+	f_getTotalShare_Helper "$total_stake" "$total_delegated_stake"
+}
+
+function f_getTotalShare_Helper {
+	typeset total_stake=$1
+	typeset total_delegated_stake=$2
+	
+	typeset           total_stake_converted=$(f_convertLemNumber "$total_stake")
+	typeset total_delegated_stake_converted=$(f_convertLemNumber "$total_delegated_stake")
+	typeset total_share=$(f_compute "$total_stake_converted+(($total_delegated_stake_converted-$total_stake_converted)*.35)")
+	
+	echo "$total_share"
+}
+
 function f_getRewardsPayoutTotal {
 	typeset filename=$1
 	typeset epoch_number=$2
@@ -396,8 +427,8 @@ function f_resolveFilename {
 	fi
 
 	if [[ `basename $filename` == "$filename" ]]; then
-		# there is no directories (i.e. no forward slashes in filename), prepend TMP_AREA
-		filename=$LEM_TMP_AREA/$filename
+		# there is no directories (i.e. no forward slashes in filename), prepend OUTPUT_AREA
+		filename=$LEM_OUTPUT_AREA/$filename
 	fi
 
 	echo "$filename"
