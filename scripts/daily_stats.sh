@@ -13,7 +13,7 @@ typeset output_filename=$(f_getRunOutputFilename_Helper "daily_stats")
 	while [[ 1 ]]; do
 		typeset current_epoch=$(f_opera_getEpoch)
 		typeset current_block=$(f_opera_getBlock)
-		typeset current_staked=$(f_round $(f_convertLemNumber $(f_opera_getTotalStake)) "0")
+		typeset current_staked=$(f_opera_getTotalStakeConvertedAndRounded)
 		typeset current_vals=$(f_getTotalActiveVals)
 		typeset current_disk=`du -Shcd 1 /extra 2>/dev/null | grep total | cut -f1 | sed 's#G##'`
 		typeset current_rewards=$(f_convertLemNumber $(f_opera_getRewards "$LEM_ADDRESS" "$LEM_VALIDATOR_ID") 4)

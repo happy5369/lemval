@@ -21,9 +21,7 @@ typeset output_filename=$(f_getRunOutputFilename_Helper "epoch")
 			previous_block=$current_block
 			
 			# staked
-			current_staked=$(f_opera_getTotalStake)
-			current_staked=$(f_convertLemNumber "$current_staked")
-			current_staked=$(f_round "$current_staked" "0")	# no decimals 
+			current_staked=$(f_opera_getTotalStakeConvertedAndRounded)
 			staked=$((current_staked-previous_staked))
 			previous_staked=$current_staked
 			
