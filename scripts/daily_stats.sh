@@ -17,7 +17,9 @@ typeset output_filename=$(f_getRunOutputFilename_Helper "daily_stats")
 		typeset current_vals=$(f_getTotalActiveVals)
 		typeset current_disk=`du -Shcd 1 /extra 2>/dev/null | grep total | cut -f1 | sed 's#G##'`
 		typeset current_rewards=$(f_convertLemNumber $(f_opera_getRewards "$LEM_ADDRESS" "$LEM_VALIDATOR_ID") 4)
-		if [[ $current_rewards < $previous_rewards ]]; then	# collect happened, reset rewards - for this to really work right, need to collect right after (or within that epoch) this 24 hour print, not before
+		# can't use if [[ $current_rewards < $previous_rewards ]], < is for strings, so fails on 10 < 9. Also can't use -lt, cause that's for integers.
+		# also there's a diff between [[ and ((
+		if (( `f_compute "$current_rewards < $previous_rewards"` )); then	# collect happened, reset rewards - for this to really work right, need to collect right after (or within that epoch) this 24 hour print, not before
 			previous_rewards=0
 		fi
 		typeset current_peers=$(f_opera_getPeers)
