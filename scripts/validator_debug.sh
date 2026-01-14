@@ -18,7 +18,7 @@ ADDRESS="0x$(ls -l $LEMON_DATA_DIR/keystore/ | awk '/UTC--/ { split($9, arr, "--
 
 # can't use ~/go-opera... for whatever reason you'll get "~/go-opera/build/opera: No such file or directory"
 # also don't quote "$operaCmd" you'll get the same thing
-operaCmd="$HOME/go-opera/build/opera attach --preload /extra/preload.js --datadir=$LEMON_DATA_DIR --exec"
+operaCmd="$HOME/lemon/val-install/go-opera/build/opera attach --preload /extra/preload.js --datadir=$LEMON_DATA_DIR --exec"
 
    VALIDATOR_ID=`$operaCmd "sfcc.getValidatorID('$ADDRESS');"`	# quotes - single or double is important around $ADDRESS!
           STATS=`$operaCmd "sfcc.getValidator($VALIDATOR_ID);"`
@@ -29,6 +29,7 @@ PENDING_REWARDS=`$operaCmd "sfcc.pendingRewards('$ADDRESS', $VALIDATOR_ID);"`
   CURRENT_EPOCH=`$operaCmd "sfcc.currentEpoch();"`
  CURRENT_SEPOCH=`$operaCmd "sfcc.currentSealedEpoch();"`
  CURRENT_DEPOCH=`$operaCmd "sfcc.delegationLockPeriodEpochs();"`
+ stake=`$operaCmd "sfcc.minSelfStake('$ADDRESS');"`
 
 echo
 echo "Wallet:          $ADDRESS"
@@ -43,3 +44,4 @@ echo "LastValidatorId: $LAST_ID"
 echo "Current Epoch:   $CURRENT_EPOCH"
 echo "Current SEpoch:  $CURRENT_SEPOCH"
 echo "Current DEpoch:  $CURRENT_DEPOCH"
+echo "mss:  $stake"
