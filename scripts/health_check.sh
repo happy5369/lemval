@@ -48,11 +48,14 @@ typeset output_filename=$(f_getRunOutputFilename_Helper "health")
 		if [[ $num_processes -eq 1 ]]; then
 			f_printUp "P"
 
-			 dagSummary=`tail $LEM_RUN_ROOT/nohup.validator -n 100 | grep "New DAG summary" | wc -l`
-			 llrSummary=`tail $LEM_RUN_ROOT/nohup.validator -n 100 | grep "New LLR summary" | wc -l`
-		    	      block=`tail $LEM_RUN_ROOT/nohup.validator -n 500 | grep "New block"       | wc -l`
-			latestBlock=`tail $LEM_RUN_ROOT/nohup.validator -n 500 | grep "New block"       | tail -n 1 | awk '{print $5}' | sed s#index=##`
-			if [[ $dagSummary -ge 1 && $llrSummary -ge 1 && $block -ge 1 ]]; then
+			  dagSummary=`tail $LEM_RUN_ROOT/nohup.validator -n 100 | grep "New DAG summary"   | wc -l`
+			  llrSummary=`tail $LEM_RUN_ROOT/nohup.validator -n 400 | grep "New LLR summary"   | wc -l`
+			eventEmitted=`tail $LEM_RUN_ROOT/nohup.validator -n 250 | grep "New event emitted" | wc -l`	# happens every 10 mins
+			  bvsEmitted=`tail $LEM_RUN_ROOT/nohup.validator -n 500 | grep "New BVs emitted"   | wc -l`
+			 regenerated=`tail $LEM_RUN_ROOT/nohup.validator -n 500 | grep "Regenerated local" | wc -l`	# happens every hour
+		    	       block=`tail $LEM_RUN_ROOT/nohup.validator -n 200 | grep "New block"         | wc -l`
+			 latestBlock=`tail $LEM_RUN_ROOT/nohup.validator -n 200 | grep "New block"         | tail -n 1 | awk '{print $5}' | sed s#index=##`
+			if [[ $dagSummary -ge 1 && $llrSummary -ge 1 && $eventEmitted -ge 1 && $bvsEmitted -ge 1 && $regenerated -ge 1 && $block -ge 1 ]]; then
 				f_printUp "V"
 			else
 				f_printDown "V"
